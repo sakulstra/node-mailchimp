@@ -26,7 +26,6 @@
   },
   "homepage": "https://github.com/sakulstra/node-mailchimp",
   "dependencies": {
-    "lodash": "^4.17.10",
     "node-fetch": "^2.3.0"
   },
   "devDependencies": {

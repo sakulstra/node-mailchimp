@@ -1,6 +1,5 @@
 "use strict";
 
-const  _ = require('lodash');
 const { URL, URLSearchParams } = require('url');
 const fetch = require('node-fetch');
 
@@ -18,13 +17,12 @@ function Mailchimp (api_key) {
   this.__base_url = "https://"+ this.__api_key.split('-')[1] + ".api.mailchimp.com/3.0"
 }
 
-var formatPath = function (path, path_params) {
-
+const formatPath = function (path, path_params) {
   if (!path) {
     path = '/';
   }
 
-  if (path[0] != '/') {
+  if (path[0] !== '/') {
     path = '/' + path;
   }
 
@@ -32,11 +30,7 @@ var formatPath = function (path, path_params) {
     return path;
   }
 
-  if (_.isEmpty(path_params)) {
-    return path;
-  }
-
-  path = _.reduce(path_params, function (_path, value, param) {
+  path = Object.entries(path_params).reduce(function (_path, [param, value]) {
     return _path.replace('{'+param+'}', value);
   }, path)
   
@@ -44,10 +38,8 @@ var formatPath = function (path, path_params) {
 
 }
 
-Mailchimp.prototype.get = function (options, query) {
-  options = _.clone(options) || {};
-
-  if (_.isString(options)) {
+Mailchimp.prototype.get = function (options = {}, query) {
+  if (typeof options === "string") {
     options = {
       path : options,
     }
@@ -65,10 +57,8 @@ Mailchimp.prototype.get = function (options, query) {
   return this.request(options);
 }
 
-Mailchimp.prototype.post = function (options, body) {
-  options = _.clone(options) || {};
-
-  if (_.isString(options)) {
+Mailchimp.prototype.post = function (options = {}, body) {
+  if (typeof options === "string") {
     options = {
       path : options,
     }
@@ -86,10 +76,8 @@ Mailchimp.prototype.post = function (options, body) {
   return this.request(options);
 }
 
-Mailchimp.prototype.patch = function (options, body) {
-  options = _.clone(options) || {};
-
-  if (_.isString(options)) {
+Mailchimp.prototype.patch = function (options = {}, body) {
+  if (typeof options === "string") {
     options = {
       path : options,
     }
@@ -107,10 +95,8 @@ Mailchimp.prototype.patch = function (options, body) {
   return this.request(options);
 }
 
-Mailchimp.prototype.put = function (options, body) {
-  options = _.clone(options) || {};
-
-  if (_.isString(options)) {
+Mailchimp.prototype.put = function (options = {}, body) {
+  if (typeof options === "string") {
     options = {
       path : options,
     }
@@ -128,10 +114,8 @@ Mailchimp.prototype.put = function (options, body) {
   return this.request(options);
 }
 
-Mailchimp.prototype.delete = function (options, done) {
-  options = options || {};
-  options = _.clone(options)
-  if (_.isString(options)) {
+Mailchimp.prototype.delete = function (options = {}, done) {
+  if (typeof options === "string") {
     options = {
       path : options,
     }
@@ -143,7 +127,7 @@ Mailchimp.prototype.delete = function (options, done) {
 Mailchimp.prototype.request = async function (options) {
   var mailchimp = this;
   const url = new URL(
-    encodeURI(mailchimp.__base_url+formatPath(options.path, options.path_params))
+    encodeURI(mailchimp.__base_url + formatPath(options.path, options.path_params))
   );
   url.search = new URLSearchParams(options.query);
   const result = await  fetch(url, {
