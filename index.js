@@ -259,202 +259,202 @@ Mailchimp.prototype.delete = function (options, done) {
 //
 // }
 
-Mailchimp.prototype.batchWait = function (batch_id, done, opts) {
-  var mailchimp = this; 
-
-  //If done is not a function, and no opts are given, second argument is the opts
-  if (!opts && !_.isFunction(done)) {
-    opts = done;
-    done = null;
-  }
-
-  opts = _.clone(opts) || {};
-
-
-  if (!opts.interval) {
-    opts.interval = 2000
-  }
-  
-  //default unpack to true
-  if (opts.unpack !== false) {
-    opts.unpack = true;
-  }
-
-  //default verbose to true
-  if (opts.verbose !== false) {
-    opts.verbose = true;
-  }
-
-  var options = {
-    method : 'get',
-    path : '/batches/' + batch_id
-  }
-
-  var promise = new Promise(function (resolve, reject) {
-    var request = function () {
-      mailchimp.request(options)
-        .then(function (result) {
-          if (opts.verbose) {
-            console.log('batch status:', result.status, result.finished_operations + '/' + result.total_operations)
-          }
-          if (result.status == 'finished') {
-            resolve(result);
-            return;
-          }
-
-          setTimeout(request, opts.interval);
-
-      }, reject)
-    }
-
-    request();
-  })
-
-  if (opts.unpack) {
-    promise = promise.then(function (result) {
-
-      //in case the batch was empty, there is nothing to unpack (should no longer be hit)
-      if (result.total_operations == 0) {
-        return [];
-      }
-
-      return mailchimp._getAndUnpackBatchResults(result.response_body_url, opts)
-    })
-  }
-
-  //If a callback is used, resolve it and don't return the promise
-  if (done) {
-    promise
-      .then(function (result) {
-        done(null, result)
-      })
-      .catch(function (err) {
-        done(err);
-      })
-    return null;
-  }
-
-  return promise
-}
-
-Mailchimp.prototype.batch = function (operations, done, opts) {
-  var mailchimp = this;
-
-  //If done is not a function, and no opts are given, second argument is the opts
-  if (!opts && !_.isFunction(done)) {
-    opts = done;
-    done = null;
-  }
-
-  opts = _.clone(opts) || {};
-
-
-  //TODO: Validate arguments and reject errors
-
-  //If the batch call does not get an operation, but a single normal call, return the result instead of a length 1 array
-  //This is useful for large get requests, like all subscribers of a list without paging
-  var should_unarray = false;
-  if (!_.isArray(operations)) {
-    operations = [operations]
-    should_unarray = true;
-  }
-
-  //default wait to true
-  if (opts.wait !== false) {
-    opts.wait = true;
-  }
-
-  //default unpack to true
-  if (opts.unpack !== false) {
-    opts.unpack = true;
-  }
-
-  //default verbose to true
-  if (opts.verbose !== false) {
-    opts.verbose = true;
-  }
-
-
-  //handle special case of empty batch with unpack.
-  //empty batches without unpack are still sent to mailchimp to get consistent responses from mailchimp
-  if (operations.length == 0 && opts.wait && opts.unpack) {
-    return Promise.resolve([]);
-  }
-
-
-  var _operations = [];
-  var id = 0;
-  _.each(operations, function (operation) {
-    var _operation = _.clone(operation);
-    _operation.operation_id = id.toString();
-    if (_operation.body) {
-      _operation.body = JSON.stringify(_operation.body);
-    }
-    _operation.path = formatPath(_operation.path, _operation.path_params);
-
-
-    if (_operation.method) {
-      _operation.method = _operation.method.toUpperCase();
-    }
-
-    if (_operation.query) {
-      _operation.params = _.assign({},_operation.query, _operation.params);
-      delete _operation.query
-    }
-
-    _operations.push(_operation);
-    id++;
-  })
-
-  var promise = mailchimp.request({
-    method : 'post',
-    path : '/batches',
-    body : {
-      operations : _operations  
-    }
-  })
-
-
-  if (opts.verbose) {
-    promise = promise.then(function (result) {
-      console.log('Batch started with id:', result.id);
-      return result
-    })
-  }
-
-  if (opts.wait) {
-    promise = promise.then(function (result) {
-      return mailchimp.batchWait(result.id, opts)
-    })
-  }
-
-  if (opts.wait && opts.unpack && should_unarray) {
-    promise = promise.then(function (result) {
-      if (result.length == 1) {
-        result = result[0];
-      }
-      return result
-    })
-  }
-
-
-  //If a callback is used, resolve it and don't return the promise
-  if (done) {
-    promise
-      .then(function (result) {
-        done(null, result)
-      })
-      .catch(function (err) {
-        done(err);
-      })
-    return null;
-  }
-
-  return promise
-
-  
-
-}
+// Mailchimp.prototype.batchWait = function (batch_id, done, opts) {
+//   var mailchimp = this;
+//
+//   //If done is not a function, and no opts are given, second argument is the opts
+//   if (!opts && !_.isFunction(done)) {
+//     opts = done;
+//     done = null;
+//   }
+//
+//   opts = _.clone(opts) || {};
+//
+//
+//   if (!opts.interval) {
+//     opts.interval = 2000
+//   }
+//
+//   //default unpack to true
+//   if (opts.unpack !== false) {
+//     opts.unpack = true;
+//   }
+//
+//   //default verbose to true
+//   if (opts.verbose !== false) {
+//     opts.verbose = true;
+//   }
+//
+//   var options = {
+//     method : 'get',
+//     path : '/batches/' + batch_id
+//   }
+//
+//   var promise = new Promise(function (resolve, reject) {
+//     var request = function () {
+//       mailchimp.request(options)
+//         .then(function (result) {
+//           if (opts.verbose) {
+//             console.log('batch status:', result.status, result.finished_operations + '/' + result.total_operations)
+//           }
+//           if (result.status == 'finished') {
+//             resolve(result);
+//             return;
+//           }
+//
+//           setTimeout(request, opts.interval);
+//
+//       }, reject)
+//     }
+//
+//     request();
+//   })
+//
+//   if (opts.unpack) {
+//     promise = promise.then(function (result) {
+//
+//       //in case the batch was empty, there is nothing to unpack (should no longer be hit)
+//       if (result.total_operations == 0) {
+//         return [];
+//       }
+//
+//       return mailchimp._getAndUnpackBatchResults(result.response_body_url, opts)
+//     })
+//   }
+//
+//   //If a callback is used, resolve it and don't return the promise
+//   if (done) {
+//     promise
+//       .then(function (result) {
+//         done(null, result)
+//       })
+//       .catch(function (err) {
+//         done(err);
+//       })
+//     return null;
+//   }
+//
+//   return promise
+// }
+//
+// Mailchimp.prototype.batch = function (operations, done, opts) {
+//   var mailchimp = this;
+//
+//   //If done is not a function, and no opts are given, second argument is the opts
+//   if (!opts && !_.isFunction(done)) {
+//     opts = done;
+//     done = null;
+//   }
+//
+//   opts = _.clone(opts) || {};
+//
+//
+//   //TODO: Validate arguments and reject errors
+//
+//   //If the batch call does not get an operation, but a single normal call, return the result instead of a length 1 array
+//   //This is useful for large get requests, like all subscribers of a list without paging
+//   var should_unarray = false;
+//   if (!_.isArray(operations)) {
+//     operations = [operations]
+//     should_unarray = true;
+//   }
+//
+//   //default wait to true
+//   if (opts.wait !== false) {
+//     opts.wait = true;
+//   }
+//
+//   //default unpack to true
+//   if (opts.unpack !== false) {
+//     opts.unpack = true;
+//   }
+//
+//   //default verbose to true
+//   if (opts.verbose !== false) {
+//     opts.verbose = true;
+//   }
+//
+//
+//   //handle special case of empty batch with unpack.
+//   //empty batches without unpack are still sent to mailchimp to get consistent responses from mailchimp
+//   if (operations.length == 0 && opts.wait && opts.unpack) {
+//     return Promise.resolve([]);
+//   }
+//
+//
+//   var _operations = [];
+//   var id = 0;
+//   _.each(operations, function (operation) {
+//     var _operation = _.clone(operation);
+//     _operation.operation_id = id.toString();
+//     if (_operation.body) {
+//       _operation.body = JSON.stringify(_operation.body);
+//     }
+//     _operation.path = formatPath(_operation.path, _operation.path_params);
+//
+//
+//     if (_operation.method) {
+//       _operation.method = _operation.method.toUpperCase();
+//     }
+//
+//     if (_operation.query) {
+//       _operation.params = _.assign({},_operation.query, _operation.params);
+//       delete _operation.query
+//     }
+//
+//     _operations.push(_operation);
+//     id++;
+//   })
+//
+//   var promise = mailchimp.request({
+//     method : 'post',
+//     path : '/batches',
+//     body : {
+//       operations : _operations
+//     }
+//   })
+//
+//
+//   if (opts.verbose) {
+//     promise = promise.then(function (result) {
+//       console.log('Batch started with id:', result.id);
+//       return result
+//     })
+//   }
+//
+//   if (opts.wait) {
+//     promise = promise.then(function (result) {
+//       return mailchimp.batchWait(result.id, opts)
+//     })
+//   }
+//
+//   if (opts.wait && opts.unpack && should_unarray) {
+//     promise = promise.then(function (result) {
+//       if (result.length == 1) {
+//         result = result[0];
+//       }
+//       return result
+//     })
+//   }
+//
+//
+//   //If a callback is used, resolve it and don't return the promise
+//   if (done) {
+//     promise
+//       .then(function (result) {
+//         done(null, result)
+//       })
+//       .catch(function (err) {
+//         done(err);
+//       })
+//     return null;
+//   }
+//
+//   return promise
+//
+//
+//
+// }
 
 Mailchimp.prototype.request = function (options, done) {
   var mailchimp = this;
@@ -530,4 +530,4 @@ Mailchimp.prototype.request = function (options, done) {
 }
 
 
-module.exports = exports = Mailchimp;
+module.exports = Mailchimp;
