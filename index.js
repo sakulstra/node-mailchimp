@@ -3,7 +3,6 @@
 var request = require('request'),
     tar   = require('tar'),
     zlib    = require('zlib'),
-    Promise = require("bluebird"),
     _       = require('lodash');
 
 
