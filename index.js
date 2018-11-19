@@ -1,8 +1,8 @@
 "use strict";
 
 var request = require('request'),
-    tar   = require('tar'),
-    zlib    = require('zlib'),
+    // tar   = require('tar'),
+    // zlib    = require('zlib'),
     _       = require('lodash');
 
 
@@ -168,96 +168,96 @@ Mailchimp.prototype.delete = function (options, done) {
 }
 
 
-Mailchimp.prototype._getAndUnpackBatchResults = function (response_body_url, opts) {
-
-  return new Promise(function (resolve, reject) {
-
-    var parse = new tar.Parse();
-
-    var results = [];
-
-    parse.on('entry', function(entry){
-      if (!entry.path.match(/\.json/)){
-        entry.resume();
-        return
-      }
-
-      var result_json = '';
-
-      entry.on('data', function (data) {
-        result_json += data.toString();
-      })
-
-      entry.on('error', function (err) {
-        parse.close();
-        entry.close();
-        reject(new Error(err));
-      })
-
-      entry.on('end', function () {
-        results.push(JSON.parse(result_json));
-
-        
-
-        
-      })
-    });
-
-    parse.on('error', function (err) {
-      parse.close();
-      reject(new Error(err));
-    })
-
-    parse.on('end', function (res) {
-      results = _.flatten(results);
-      
-      //TODO: implement linear sort uding operation id is linear from 0 to length-1
-      results.sort(function (result_a, result_b) {
-        return result_a.operation_id - result_b.operation_id
-      })
-
-      for (var i = 0; i < results.length; i++) {
-        results[i] = JSON.parse(results[i].response);
-      };
-
-      resolve(results)
-    })
-
-
-    request.get({
-      url : response_body_url,
-      encoding : null
-    }, function (err, response) {
-      if (err) {
-        reject(new Error(err));
-        return;
-      }
-      
-
-      if (response.statusCode != 200) {
-        reject(Object.assign(new Error(), response.body));
-        return;
-      }
-
-      var response_buffer = response.body;
-
-      zlib.gunzip(response_buffer, function (err, result) {
-        if (err) {
-          reject(new Error(err));
-          return;
-        }
-
-        parse.end(result)
-
-      })
-
-    })
-
-  })
-
-
-  
-}
+// Mailchimp.prototype._getAndUnpackBatchResults = function (response_body_url, opts) {
+//
+//   return new Promise(function (resolve, reject) {
+//
+//     var parse = new tar.Parse();
+//
+//     var results = [];
+//
+//     parse.on('entry', function(entry){
+//       if (!entry.path.match(/\.json/)){
+//         entry.resume();
+//         return
+//       }
+//
+//       var result_json = '';
+//
+//       entry.on('data', function (data) {
+//         result_json += data.toString();
+//       })
+//
+//       entry.on('error', function (err) {
+//         parse.close();
+//         entry.close();
+//         reject(new Error(err));
+//       })
+//
+//       entry.on('end', function () {
+//         results.push(JSON.parse(result_json));
+//
+//
+//
+//
+//       })
+//     });
+//
+//     parse.on('error', function (err) {
+//       parse.close();
+//       reject(new Error(err));
+//     })
+//
+//     parse.on('end', function (res) {
+//       results = _.flatten(results);
+//
+//       //TODO: implement linear sort uding operation id is linear from 0 to length-1
+//       results.sort(function (result_a, result_b) {
+//         return result_a.operation_id - result_b.operation_id
+//       })
+//
+//       for (var i = 0; i < results.length; i++) {
+//         results[i] = JSON.parse(results[i].response);
+//       };
+//
+//       resolve(results)
+//     })
+//
+//
+//     request.get({
+//       url : response_body_url,
+//       encoding : null
+//     }, function (err, response) {
+//       if (err) {
+//         reject(new Error(err));
+//         return;
+//       }
+//
+//
+//       if (response.statusCode != 200) {
+//         reject(Object.assign(new Error(), response.body));
+//         return;
+//       }
+//
+//       var response_buffer = response.body;
+//
+//       zlib.gunzip(response_buffer, function (err, result) {
+//         if (err) {
+//           reject(new Error(err));
+//           return;
+//         }
+//
+//         parse.end(result)
+//
+//       })
+//
+//     })
+//
+//   })
+//
+//
+//
+// }
 
 Mailchimp.prototype.batchWait = function (batch_id, done, opts) {
   var mailchimp = this; 
