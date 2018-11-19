@@ -1,14 +1,14 @@
 {
-  "name": "mailchimp-api-v3",
-  "version": "1.12.0",
-  "description": "Mailchimp wrapper for v3 of the mailchimp api, with transparant handling of batch operations",
+  "name": "mailchimp-api-v3-next",
+  "version": "0.1.0",
+  "description": "Mailchimp wrapper for v3 of the mailchimp api, without batch support",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --use_strict"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://thorning@github.com/thorning/node-mailchimp.git"
+    "url": "git+https://github.com/sakulstra/node-mailchimp.git"
   },
   "keywords": [
     "mailchimp",
@@ -19,17 +19,17 @@
     "wrapper",
     "mailchimp api"
   ],
-  "author": "Andreas Thorning",
+  "author": "Lukas Strassel",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/thorning/node-mailchimp/issues"
+    "url": "https://github.com/sakulstra/node-mailchimp/issues"
   },
-  "homepage": "https://github.com/thorning/node-mailchimp#readme",
+  "homepage": "https://github.com/sakulstra/node-mailchimp",
   "dependencies": {
     "lodash": "^4.17.10",
-    "request": "^2.67.0"
+    "node-fetch": "^2.3.0"
   },
   "devDependencies": {
-    "mocha": "^5.1.1"
+    "jest": "^23.6.0"
   }
 }

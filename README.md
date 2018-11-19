@@ -1,3 +1,12 @@
+# Differences to the mailchimp-api-v3 package
+- no dependency on bluebird which makes node 8 the lowest compatible engine
+- node-fetch instead of request
+- for now, *no batcing support*
+- jest instead of mocha
+
+# Planned
+- drop lodash
+
 # node-mailchimp
 
 Mailchimp api wrapper for v3 of the mailchimp api, with batch handling. Supports both promise and callback handling.
