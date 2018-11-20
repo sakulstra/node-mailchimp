@@ -50,3 +50,49 @@ describe('basic mailchimp api methods', function () {
     expect(response.lists).toBeTruthy();
   })
 })
+
+let listId;
+describe('subscriptions', async () => {
+  beforeAll(async () => {
+    const response = await mailchimp.post({path: '/lists'}, {
+      name: 'test',
+      contact: {
+        company: 'test',
+        address1: 'Graßgasse',
+        city: 'Landau',
+        state: 'Rlp',
+        zip: '76829',
+        country: 'germany'
+      },
+      permission_reminder: 'hayho',
+      campaign_defaults: {
+        from_name: 'developer',
+        from_email: 'developer@mobilehead.com',
+        subject: 'test',
+        language: 'en'
+      },
+      email_type_option: false
+    })
+    listId = response.id;
+    expect(listId).toBeTruthy()
+  })
+
+  test('subscribe', async () => {
+    const response = await mailchimp.subscribe({email_address: 'lukas.strassel@mobilehead.de'}, listId)
+    expect(response.id).toBeTruthy()
+  })
+
+  test('update', async () => {
+    const response = await mailchimp.update({email_address: 'lukas.strassel@mobilehead.de', merge_fields: {FNAME: 'max'}}, listId)
+    expect(response.merge_fields.FNAME).toBe('max')
+  })
+
+  test('unsubscribe', async () => {
+    const response = await mailchimp.unsubscribe({email_address: 'lukas.strassel@mobilehead.de'}, listId)
+    expect(response.id).toBeTruthy()
+  })
+
+  afterAll(async () => {
+    await mailchimp.delete('lists/'+listId)
+  })
+})

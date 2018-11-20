@@ -1,6 +1,6 @@
 {
   "name": "mailchimp-api-v3-next",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Mailchimp wrapper for v3 of the mailchimp api, without batch support",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/sakulstra/node-mailchimp",
   "dependencies": {
+    "md5": "^2.2.1",
     "node-fetch": "^2.3.0"
   },
   "devDependencies": {
